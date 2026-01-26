@@ -30,5 +30,6 @@ jobs:
           -p semantic-release
           -p @semantic-release/commit-analyzer
           -p @semantic-release/release-notes-generator
+          -p @semantic-release/npm
           -p @semantic-release/github
           semantic-release
