@@ -1,8 +1,8 @@
-name: Prerelease (develop)
+name: Release (main)
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
   workflow_dispatch: {}
 
 permissions:
@@ -11,7 +11,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  prerelease:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,7 +22,7 @@ jobs:
         with:
           node-version: 24
 
-      - name: Run semantic-release (prerelease)
+      - name: Run semantic-release (stable)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
