@@ -17,7 +17,8 @@
       {
         "assets": [
           {
-            "path": "*.tgz"
+            "path": "dist/*.zip",
+            "label": "macOS app bundle"
           }
         ],
         "failCommentCondition": "false",
