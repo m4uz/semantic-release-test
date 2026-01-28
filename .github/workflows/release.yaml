@@ -14,13 +14,32 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Set up Flutter environment
+        # https://github.com/subosito/flutter-action
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.35.1
+          cache: false
+
+      - name: Install node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
+      - name: commit analyzer
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          npx
+          -p semantic-release
+          -p @semantic-release/commit-analyzer
+          semantic-release
 
       - name: Run semantic-release (stable)
         env:
@@ -28,8 +47,14 @@ jobs:
         run: >
           npx
           -p semantic-release
-          -p @semantic-release/commit-analyzer
-          -p @semantic-release/release-notes-generator
-          -p @semantic-release/npm
-          -p @semantic-release/github
+          -p semantic-release-pub
           semantic-release
+
+      - name: Enable support for desktop on macOS
+        run: flutter config --enable-macos-desktop
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build macOS
+        run: flutter build macos --release
