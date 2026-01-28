@@ -14,14 +14,6 @@ jobs:
   release:
     runs-on: macos-latest
     steps:
-      - name: Set up Flutter environment
-        # https://github.com/subosito/flutter-action
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          flutter-version: 3.35.1
-          cache: false
-
       - name: Install node
         uses: actions/setup-node@v4
         with:
@@ -38,7 +30,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          OUTPUT="$(npx -p semantic-release -p semantic-release-pub semantic-release --dry-run)"
+          OUTPUT="$(npx -p semantic-release semantic-release --dry-run)"
           echo "$OUTPUT"
           RELEASE_VERSION="$(echo "$OUTPUT" | awk '/The next release version is/{print $6; exit}')"
           if [ -n "${RELEASE_VERSION}" ]; then
@@ -48,6 +40,19 @@ jobs:
             echo "release=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Set up Flutter environment
+        # https://github.com/subosito/flutter-action
+        if: steps.check_release.outputs.release_version != ''
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.35.1
+          cache: false
+
+      - name: Install Release Tools
+        if: steps.check_release.outputs.release_version != ''
+        run: flutter pub global activate release_tools
+
       - name: Enable support for desktop on macOS
         if: steps.check_release.outputs.release_version != ''
         run: flutter config --enable-macos-desktop
@@ -55,6 +60,10 @@ jobs:
       - name: Install dependencies
         if: steps.check_release.outputs.release_version != ''
         run: flutter pub get
+
+      - name: Update pubspec version
+        if: steps.check_release.outputs.release_version != ''
+        run: release_tools update_version "${{ steps.check_release.outputs.release_version }}"
 
       - name: Build macOS
         if: steps.check_release.outputs.release_version != ''
@@ -88,5 +97,4 @@ jobs:
         run: >
           npx
           -p semantic-release
-          -p semantic-release-pub
           semantic-release
