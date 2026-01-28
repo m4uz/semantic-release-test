@@ -39,6 +39,7 @@ jobs:
           npx
           -p semantic-release
           -p @semantic-release/commit-analyzer
+          -p semantic-release-pub
           semantic-release
 
       - name: Run semantic-release (stable)
