@@ -1,16 +1,15 @@
 {
   "branches": [
-    "main",
-    { "name": "develop", "prerelease": "dev" }
+    "main"
   ],
   "plugins": [
     "@semantic-release/commit-analyzer",
     "@semantic-release/release-notes-generator",
     [
-      "@semantic-release/npm",
+      "semantic-release-pub",
       {
-        "npmPublish": false,
-        "tarballDir": "."
+        "publishPub": false,
+        "updateBuildNumber": true
       }
     ],
     [
@@ -18,8 +17,7 @@
       {
         "assets": [
           {
-            "path": "*.tgz",
-            "label": "npm package tarball"
+            "path": "*.tgz"
           }
         ],
         "failCommentCondition": "false",
