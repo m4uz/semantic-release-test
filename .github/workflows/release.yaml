@@ -32,17 +32,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: commit analyzer
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: >
-          npx
-          -p semantic-release
-          -p @semantic-release/commit-analyzer
-          -p semantic-release-pub
-          semantic-release
-
-      - name: Run semantic-release (stable)
+      - name: release pub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
