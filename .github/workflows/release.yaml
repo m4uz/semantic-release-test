@@ -33,7 +33,12 @@ jobs:
 
       - name: Install semantic-release (for dry-run only)
         run: |
-          npm install -D semantic-release @semantic-release/commit-analyzer conventional-changelog-conventionalcommits
+          npm install -D \
+            semantic-release \
+            @semantic-release/commit-analyzer \
+            semantic-release-replace-plugin \
+            @jno21/semantic-release-github-commit \
+            @semantic-release/github
 
       - name: Check for release (dry-run)
         id: check
