@@ -32,7 +32,22 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Check for release
+        id: check_release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          OUTPUT="$(npx -p semantic-release -p semantic-release-pub semantic-release --dry-run)"
+          echo "$OUTPUT"
+          if rg -q "The next release version is" <<<"$OUTPUT"; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: release pub
+        if: steps.check_release.outputs.release == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
@@ -42,10 +57,13 @@ jobs:
           semantic-release
 
       - name: Enable support for desktop on macOS
+        if: steps.check_release.outputs.release == 'true'
         run: flutter config --enable-macos-desktop
 
       - name: Install dependencies
+        if: steps.check_release.outputs.release == 'true'
         run: flutter pub get
 
       - name: Build macOS
-        run: flutter build macos --release
+        if: steps.check_release.outputs.release == 'true'
+        run: flutter build macos
