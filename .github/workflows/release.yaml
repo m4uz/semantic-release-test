@@ -34,7 +34,7 @@ jobs:
           npm install -D \
             semantic-release \
             @semantic-release/commit-analyzer \
-            @semantic-release/git \
+            @jno21/semantic-release-github-commit \
             @semantic-release/github \
             conventional-changelog-conventionalcommits \
             semantic-release-replace-plugin
