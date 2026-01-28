@@ -30,11 +30,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+
           OUTPUT="$(npx -p semantic-release semantic-release --dry-run)"
-          echo "$OUTPUT"
-          RELEASE_VERSION="$(echo "$OUTPUT" | awk '/The next release version is/{print $6; exit}')"
+          RELEASE_VERSION="$(echo "$OUTPUT" | grep -m1 "The next release version is" | awk '{print $NF}')"
+
           if [ -n "${RELEASE_VERSION}" ]; then
-            echo "release_version=${RELEASE_VERSION}" >> "$GITHUB_OUTPUT"
+            FULL_VERSION="${RELEASE_VERSION}+${GITHUB_RUN_NUMBER}"
+            echo "full version: ${FULL_VERSION}"
+            echo "release_version=${FULL_VERSION}" >> "$GITHUB_OUTPUT"
             echo "release=true" >> "$GITHUB_OUTPUT"
           else
             echo "release=false" >> "$GITHUB_OUTPUT"
