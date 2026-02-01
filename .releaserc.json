@@ -157,12 +157,10 @@
       {
         "assets": [
           {
-            "path": "release_assets/*.apk",
-            "label": "Android APK"
+            "path": "release_assets/*.apk"
           },
           {
-            "path": "release_assets/macos-*.zip",
-            "label": "macOS (zip)"
+            "path": "release_assets/macos-*.zip"
           }
         ]
       }
