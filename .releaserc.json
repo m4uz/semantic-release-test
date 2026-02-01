@@ -166,6 +166,19 @@
           }
         ]
       }
+    ],
+    [
+      "@kilianpaquier/semantic-release-backmerge",
+      {
+        "commit": "chore: merge branch ${ from } into ${ to } [skip ci]",
+        "targets": [
+          {
+            "from": "main",
+            "to": "develop"
+          }
+        ],
+        "title": "Automatic merge failure"
+      }
     ]
   ]
 }
