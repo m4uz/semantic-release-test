@@ -1,3 +1,15 @@
+## [5.0.0](https://github.com/m4uz/semantic-release-test/compare/4.4.1...5.0.0) (2026-02-01)
+
+### ⚠ BREAKING CHANGES
+
+* A new feature or user-facing capability.
+* A new feature or user-facing capability.
+
+### ✦︎ Features
+
+* A new feature or user-facing capability. ([abe30c3](https://github.com/m4uz/semantic-release-test/commit/abe30c3259090fb0906576f0007ac93490e10f71))
+* A new feature or user-facing capability. ([7bf5a9e](https://github.com/m4uz/semantic-release-test/commit/7bf5a9edc410cc44ef25d743249de45cda37b532))
+
 ## [4.4.1](https://github.com/m4uz/semantic-release-test/compare/4.4.0...4.4.1) (2026-02-01)
 
 ### ⚠︎ Bug Fixes
