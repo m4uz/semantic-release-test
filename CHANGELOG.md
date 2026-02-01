@@ -1,3 +1,17 @@
+## [4.3.0](https://github.com/m4uz/semantic-release-test/compare/4.2.0...4.3.0) (2026-02-01)
+
+### ✦︎ Features
+
+* A new feature or user-facing capability. ([0cb015b](https://github.com/m4uz/semantic-release-test/commit/0cb015b4c061928a54b6a52aef886858555960e8))
+
+### ⚠︎ Bug Fixes
+
+* A bug fix that corrects existing behavior. ([45d3c76](https://github.com/m4uz/semantic-release-test/commit/45d3c76e08ab0058ea56d0936c4479a000656d9c))
+
+### ⚡︎ Performance Improvements
+
+* A performance improvement. ([2fdac6f](https://github.com/m4uz/semantic-release-test/commit/2fdac6f93e11973f302de228b400490bb74938dc))
+
 ## [4.2.0](https://github.com/m4uz/semantic-release-test/compare/4.1.0...4.2.0) (2026-02-01)
 
 ### ✦︎ Features
