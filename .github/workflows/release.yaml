@@ -1,60 +1,162 @@
-name: Release (main)
+name: Release
 
 on:
   push:
-    branches: [main]
-  workflow_dispatch: {}
+    branches: [ main ]
+  workflow_dispatch:
 
 permissions:
   contents: write
-  issues: write
-  pull-requests: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
 
 jobs:
-  release:
+  plan:
     runs-on: ubuntu-latest
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    outputs:
+      release: ${{ steps.check.outputs.release }}
+      version: ${{ steps.check.outputs.version }}
+      build_number: ${{ github.run_number }}
     steps:
-      - name: Set up Flutter environment
-        # https://github.com/subosito/flutter-action
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          flutter-version: 3.35.1
-          cache: false
-
-      - name: Install node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: commit analyzer
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Install semantic-release (for dry-run only)
+        run: |
+          npm install -D \
+            semantic-release \
+            @semantic-release/commit-analyzer \
+            conventional-changelog-conventionalcommits \
+            semantic-release-replace-plugin \
+            @jno21/semantic-release-github-commit \
+            @semantic-release/github \
+            @semantic-release/changelog
+            
+
+      - name: Check for release (dry-run)
+        id: check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: >
-          npx
-          -p semantic-release
-          -p @semantic-release/commit-analyzer
-          semantic-release
+        run: |
+          set -euo pipefail
+          OUTPUT="$(npx semantic-release --dry-run)"
+          echo "${OUTPUT}"
+          VERSION="$(echo "$OUTPUT" | grep -m1 "The next release version is" | awk '{print $NF}' || true)"
+          if [ -n "${VERSION}" ]; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Run semantic-release (stable)
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: >
-          npx
-          -p semantic-release
-          -p semantic-release-pub
-          semantic-release
+  build:
+    needs: plan
+    if: needs.plan.outputs.release == 'true'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            platform: android
+          - os: macos-latest
+            platform: macos
+    runs-on: ${{ matrix.os }}
 
-      - name: Enable support for desktop on macOS
-        run: flutter config --enable-macos-desktop
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.x"
+          channel: stable
+          cache: true
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Build macOS
-        run: flutter build macos --release
+      - name: Build Android APK
+        if: matrix.platform == 'android'
+        run: |
+          # flutter build apk --release \
+          #   --build-name="${{ needs.plan.outputs.version }}" \
+          #   --build-number="${{ needs.plan.outputs.build_number }}"
+
+          mkdir -p dist
+          echo "androd apk test" > "dist/app-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.apk"
+          # cp build/app/outputs/flutter-apk/app-release.apk \
+          #   "dist/app-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.apk"
+
+      - name: Build macOS (zip .app)
+        if: matrix.platform == 'macos'
+        run: |
+          # flutter build macos --release \
+          #   --build-name="${{ needs.plan.outputs.version }}" \
+          #   --build-number="${{ needs.plan.outputs.build_number }}"
+
+          mkdir -p dist
+          echo "macos zip test" > "dist/macos-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
+          # APP_PATH="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)"
+          # ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" \
+          #   "dist/macos-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.platform }}
+          path: dist/*
+
+  release:
+    needs: [plan, build]
+    if: needs.plan.outputs.release == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+
+      - name: Collect release assets
+        run: |
+          set -euo pipefail
+          mkdir -p release_assets
+          find dist -type f -maxdepth 2 -print -exec cp -v {} release_assets/ \;
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "lts/*"
+
+      - name: Install release tooling
+        run: |
+          npm install -D \
+            semantic-release \
+            @semantic-release/commit-analyzer \
+            @jno21/semantic-release-github-commit \
+            @semantic-release/github \
+            conventional-changelog-conventionalcommits \
+            semantic-release-replace-plugin \
+            @semantic-release/changelog
+
+      - name: Run semantic-release (publish)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BUILD_NUMBER: ${{ needs.plan.outputs.build_number }}
+        run: npx semantic-release
