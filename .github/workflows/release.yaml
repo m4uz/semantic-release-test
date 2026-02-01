@@ -49,6 +49,7 @@ jobs:
         run: |
           set -euo pipefail
           OUTPUT="$(npx semantic-release --dry-run)"
+          echo "${OUTPUT}"
           VERSION="$(echo "$OUTPUT" | grep -m1 "The next release version is" | awk '{print $NF}' || true)"
           if [ -n "${VERSION}" ]; then
             echo "release=true" >> "$GITHUB_OUTPUT"
@@ -87,25 +88,27 @@ jobs:
       - name: Build Android APK
         if: matrix.platform == 'android'
         run: |
-          flutter build apk --release \
-            --build-name="${{ needs.plan.outputs.version }}" \
-            --build-number="${{ needs.plan.outputs.build_number }}"
+          # flutter build apk --release \
+          #   --build-name="${{ needs.plan.outputs.version }}" \
+          #   --build-number="${{ needs.plan.outputs.build_number }}"
 
           mkdir -p dist
-          cp build/app/outputs/flutter-apk/app-release.apk \
-            "dist/app-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.apk"
+          echo "androd apk test" > "dist/app-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.apk"
+          # cp build/app/outputs/flutter-apk/app-release.apk \
+          #   "dist/app-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.apk"
 
       - name: Build macOS (zip .app)
         if: matrix.platform == 'macos'
         run: |
-          flutter build macos --release \
-            --build-name="${{ needs.plan.outputs.version }}" \
-            --build-number="${{ needs.plan.outputs.build_number }}"
+          # flutter build macos --release \
+          #   --build-name="${{ needs.plan.outputs.version }}" \
+          #   --build-number="${{ needs.plan.outputs.build_number }}"
 
           mkdir -p dist
-          APP_PATH="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)"
-          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" \
-            "dist/macos-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
+          echo "macos zip test" > "dist/macos-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
+          # APP_PATH="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)"
+          # ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" \
+          #   "dist/macos-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
