@@ -1,3 +1,9 @@
+## [4.4.1](https://github.com/m4uz/semantic-release-test/compare/4.4.0...4.4.1) (2026-02-01)
+
+### ⚠︎ Bug Fixes
+
+* A bug fix that corrects existing behavior. ([#13](https://github.com/m4uz/semantic-release-test/issues/13)) ([aea3340](https://github.com/m4uz/semantic-release-test/commit/aea3340a0e90ab98128b604d1e3f45ffc657b76c))
+
 ## [4.4.0](https://github.com/m4uz/semantic-release-test/compare/4.3.0...4.4.0) (2026-02-01)
 
 ### ✦︎ Features
