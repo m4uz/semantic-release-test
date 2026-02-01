@@ -39,7 +39,8 @@ jobs:
             conventional-changelog-conventionalcommits \
             semantic-release-replace-plugin \
             @jno21/semantic-release-github-commit \
-            @semantic-release/github
+            @semantic-release/github \
+            @semantic-release/changelog
             
 
       - name: Check for release (dry-run)
@@ -151,7 +152,8 @@ jobs:
             @jno21/semantic-release-github-commit \
             @semantic-release/github \
             conventional-changelog-conventionalcommits \
-            semantic-release-replace-plugin
+            semantic-release-replace-plugin \
+            @semantic-release/changelog
 
       - name: Run semantic-release (publish)
         env:

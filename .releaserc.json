@@ -123,6 +123,12 @@
       }
     ],
     [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    [
       "semantic-release-replace-plugin",
       {
         "replacements": [
@@ -140,7 +146,8 @@
       "@jno21/semantic-release-github-commit",
       {
         "files": [
-          "pubspec.yaml"
+          "pubspec.yaml",
+          "CHANGELOG.md"
         ],
         "commitMessage": "chore(release): ${nextRelease.version} [skip ci]"
       }
