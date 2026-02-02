@@ -1,3 +1,25 @@
+## [5.4.0](https://github.com/m4uz/semantic-release-test/compare/5.3.0...5.4.0) (2026-02-02)
+
+### ✦︎ Features
+
+* feature ([c301086](https://github.com/m4uz/semantic-release-test/commit/c3010864e9d5f10ff7423db916399f0a3ee29b61)), closes [#30](https://github.com/m4uz/semantic-release-test/issues/30)
+* feature ([#30](https://github.com/m4uz/semantic-release-test/issues/30)) ([46904d7](https://github.com/m4uz/semantic-release-test/commit/46904d7e0b3244883e7ac3be0c8298cb329509d5))
+
+## [5.3.0](https://github.com/m4uz/semantic-release-test/compare/5.2.0...5.3.0) (2026-02-02)
+
+### ✦︎ Features
+
+* feature ([573aee0](https://github.com/m4uz/semantic-release-test/commit/573aee04c8885ff2a59ec57ecae6ddae86fde216)), closes [#28](https://github.com/m4uz/semantic-release-test/issues/28)
+* feature ([#28](https://github.com/m4uz/semantic-release-test/issues/28)) ([8e70869](https://github.com/m4uz/semantic-release-test/commit/8e70869d890c2921e2d288a409b49525e198b8ad))
+
+## [5.2.0](https://github.com/m4uz/semantic-release-test/compare/5.1.0...5.2.0) (2026-02-02)
+
+### ✦︎ Features
+
+* feature ([#26](https://github.com/m4uz/semantic-release-test/issues/26)) ([f7f83db](https://github.com/m4uz/semantic-release-test/commit/f7f83db67f8017c2207b834aa60d668925d5f69f))
+* should pass ([#23](https://github.com/m4uz/semantic-release-test/issues/23)) ([f337d0d](https://github.com/m4uz/semantic-release-test/commit/f337d0d2c0029da5952e5c12b8df5dd72ef9f682))
+* should pass ([#24](https://github.com/m4uz/semantic-release-test/issues/24)) ([1ff7ca1](https://github.com/m4uz/semantic-release-test/commit/1ff7ca1b36830f125ea2e07349a80c20508d072d))
+
 ## [5.1.0](https://github.com/m4uz/semantic-release-test/compare/5.0.0...5.1.0) (2026-02-01)
 
 ### ✦︎ Features
