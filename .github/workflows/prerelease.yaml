@@ -1,35 +1,35 @@
-# name: Prerelease (develop)
+name: Prerelease (develop)
 
-# on:
-#   push:
-#     branches: [develop]
-#   workflow_dispatch: {}
+on:
+  # push:
+  #   branches: [develop]
+  workflow_dispatch: {}
 
-# permissions:
-#   contents: write
-#   issues: write
-#   pull-requests: write
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
 
-# jobs:
-#   prerelease:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - uses: actions/checkout@v4
-#         with:
-#           fetch-depth: 0
+jobs:
+  prerelease:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-#       - uses: actions/setup-node@v4
-#         with:
-#           node-version: 24
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
 
-#       - name: Run semantic-release (prerelease)
-#         env:
-#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#         run: >
-#           npx
-#           -p semantic-release
-#           -p @semantic-release/commit-analyzer
-#           -p @semantic-release/release-notes-generator
-#           -p @semantic-release/npm
-#           -p @semantic-release/github
-#           semantic-release
+      - name: Run semantic-release (prerelease)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: >
+          npx
+          -p semantic-release
+          -p @semantic-release/commit-analyzer
+          -p @semantic-release/release-notes-generator
+          -p @semantic-release/npm
+          -p @semantic-release/github
+          semantic-release
