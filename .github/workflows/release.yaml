@@ -164,6 +164,7 @@ jobs:
 
       - name: Run semantic-release (publish)
         env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
           BUILD_NUMBER: ${{ needs.plan.outputs.build_number }}
         run: npx semantic-release
