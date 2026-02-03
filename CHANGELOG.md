@@ -1,3 +1,10 @@
+## [5.7.0](https://github.com/m4uz/semantic-release-test/compare/5.6.0...5.7.0) (2026-02-03)
+
+### ✦︎ Features
+
+* feat ([98b3197](https://github.com/m4uz/semantic-release-test/commit/98b319758e66ec8cd5e205f1d0d2fd44cbbb1197))
+* feat ([#40](https://github.com/m4uz/semantic-release-test/issues/40)) ([c78d772](https://github.com/m4uz/semantic-release-test/commit/c78d7720a41ff89a5e14d4d75dac90cc8d9e795e))
+
 ## [5.6.0](https://github.com/m4uz/semantic-release-test/compare/5.5.0...5.6.0) (2026-02-02)
 
 ### ✦︎ Features
