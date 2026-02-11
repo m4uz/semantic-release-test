@@ -36,6 +36,7 @@ jobs:
             semantic-release \
             @semantic-release/commit-analyzer \
             conventional-changelog-conventionalcommits \
+            semantic-release-replace-plugin \
             @semantic-release/github \
             @semantic-release/changelog
             
@@ -148,6 +149,7 @@ jobs:
             @semantic-release/commit-analyzer \
             @semantic-release/github \
             conventional-changelog-conventionalcommits \
+            semantic-release-replace-plugin \
             @semantic-release/changelog
 
       - name: Create GitHub App Token
