@@ -36,11 +36,8 @@ jobs:
             semantic-release \
             @semantic-release/commit-analyzer \
             conventional-changelog-conventionalcommits \
-            semantic-release-replace-plugin \
-            @jno21/semantic-release-github-commit \
             @semantic-release/github \
-            @semantic-release/changelog \
-            @kilianpaquier/semantic-release-backmerge
+            @semantic-release/changelog
             
       - name: Check for release (dry-run)
         id: check
@@ -149,12 +146,9 @@ jobs:
           npm install -D \
             semantic-release \
             @semantic-release/commit-analyzer \
-            @jno21/semantic-release-github-commit \
             @semantic-release/github \
             conventional-changelog-conventionalcommits \
-            semantic-release-replace-plugin \
-            @semantic-release/changelog \
-            @kilianpaquier/semantic-release-backmerge
+            @semantic-release/changelog
 
       - name: Create GitHub App Token
         uses: actions/create-github-app-token@v2
