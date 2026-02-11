@@ -152,16 +152,8 @@ jobs:
             semantic-release-replace-plugin \
             @semantic-release/changelog
 
-      - name: Create GitHub App Token
-        uses: actions/create-github-app-token@v2
-        id: app-token
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
       - name: Run semantic-release (publish)
         env:
-          GH_TOKEN: ${{ steps.app-token.outputs.token }}
-          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BUILD_NUMBER: ${{ needs.plan.outputs.build_number }}
         run: npx semantic-release --debug
