@@ -123,26 +123,6 @@
       }
     ],
     [
-      "@semantic-release/changelog",
-      {
-        "changelogFile": "CHANGELOG.md"
-      }
-    ],
-    [
-      "semantic-release-replace-plugin",
-      {
-        "replacements": [
-          {
-            "files": [
-              "pubspec.yaml"
-            ],
-            "from": "^version:.*$",
-            "to": "version: ${nextRelease.version}+${process.env.BUILD_NUMBER}"
-          }
-        ]
-      }
-    ],
-    [
       "@semantic-release/github",
       {
         "assets": [
