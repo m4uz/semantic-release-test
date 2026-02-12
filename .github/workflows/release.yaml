@@ -35,8 +35,6 @@ jobs:
           npm install -D \
             semantic-release \
             conventional-changelog-conventionalcommits
-#            @semantic-release/commit-analyzer \
-#            @semantic-release/github
             
       - name: Check for release (dry-run)
         id: check
@@ -145,8 +143,6 @@ jobs:
           npm install -D \
             semantic-release \
             conventional-changelog-conventionalcommits
-#            @semantic-release/commit-analyzer \
-#            @semantic-release/github
 
       - name: Run semantic-release (publish)
         env:
