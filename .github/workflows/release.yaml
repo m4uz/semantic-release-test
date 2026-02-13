@@ -1,9 +1,7 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows: ["commitlint"]
-    types: [completed]
+  push:
     branches: [main]
 
 permissions:
