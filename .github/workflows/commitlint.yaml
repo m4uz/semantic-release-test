@@ -25,9 +25,10 @@ jobs:
           node-version: "lts/*"
 
       - name: Install commitlint
-        run: npm install -D \
-              @commitlint/cli \
-              @commitlint/config-conventional
+        run: |
+          npm install -D \
+            @commitlint/cli \
+            @commitlint/config-conventional
 
       - name: Validate PR commits
         if: github.event_name == 'pull_request'
