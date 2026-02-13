@@ -1,9 +1,10 @@
-name: CI
+name: commitlint
 
 on:
-  push:
-    branches: [ develop ]
   pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main, develop ]
 
 permissions:
   contents: read
@@ -24,13 +25,6 @@ jobs:
       - name: Install commitlint
         run: npm install -D @commitlint/cli @commitlint/config-conventional
         
-      - name: Print versions
-        run: |
-          git --version
-          node --version
-          npm --version
-          npx commitlint --version
-
       - name: Validate current commit (last commit) with commitlint
         if: github.event_name == 'push'
         run: npx commitlint --last --verbose
