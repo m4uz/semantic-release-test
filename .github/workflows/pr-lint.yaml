@@ -1,0 +1,19 @@
+name: pr-lint
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+    branches: [develop, main]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  title:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate PR title
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          echo "PR title: $TITLE"
+          echo "$TITLE" | npx commitlint --verbose
