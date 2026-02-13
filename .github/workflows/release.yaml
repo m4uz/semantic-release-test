@@ -14,7 +14,7 @@ concurrency:
 env:
   # Single pinned Flutter version reused across all platforms.
   # Manual install docs: https://docs.flutter.dev/install/manual
-  FLUTTER_VERSION: "3.35.4"
+  FLUTTER_VERSION: "3.41.1"
 
 jobs:
   plan:
@@ -89,25 +89,14 @@ jobs:
           set -euo pipefail
 
           echo "Installing Flutter ${FLUTTER_VERSION} (stable) manually for macOS."
-          echo "Info: This workflow intentionally avoids setup-flutter GitHub Actions."
 
           cd "${RUNNER_TEMP}"
 
-          ARCH="$(uname -m)"
-          case "${ARCH}" in
-            arm64) FLUTTER_ARCH="arm64" ;;
-            x86_64) FLUTTER_ARCH="x64" ;;
-            *)
-              echo "Unsupported macOS runner architecture: ${ARCH}"
-              exit 1
-              ;;
-          esac
-
-          # Persist arch for later steps (e.g., artifact naming).
+          FLUTTER_ARCH="arm64"
           echo "FLUTTER_ARCH=${FLUTTER_ARCH}" >> "${GITHUB_ENV}"
 
           FLUTTER_ZIP="flutter_macos_${FLUTTER_ARCH}_${FLUTTER_VERSION}-stable.zip"
-          FLUTTER_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable/${FLUTTER_VERSION}/${FLUTTER_ZIP}"
+          FLUTTER_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/${FLUTTER_ZIP}"
 
           echo "Downloading ${FLUTTER_URL}"
           curl -fL "${FLUTTER_URL}" -o flutter.zip
