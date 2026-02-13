@@ -2,9 +2,9 @@ name: commitlint
 
 on:
   pull_request:
-    branches: [ main, develop ]
+    branches: [ develop ]
   push:
-    branches: [ main, develop ]
+    branches: [ develop ]
 
 permissions:
   contents: read
