@@ -1,32 +1,38 @@
-name: commitlint
+name: pr-lint
 
 on:
   pull_request:
-    branches: [ develop, main ]
+    types: [opened, edited, reopened, synchronize]
+    branches: [develop, main]
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
-  commitlint:
+  lint:
     runs-on: ubuntu-latest
     steps:
-      # https://github.com/actions/checkout/releases/tag/v6.0.2
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           fetch-depth: 0
 
-      # https://github.com/actions/setup-node/releases/tag/v6.2.0
-      - name: Setup Node.js
-        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
+      - uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version: "lts/*"
 
       - name: Install commitlint
+        run: npm i -D @commitlint/cli @commitlint/config-conventional
+
+      - name: Validate PR title
         run: |
-          npm install -D \
-            @commitlint/cli \
-            @commitlint/config-conventional
+          TITLE="${{ github.event.pull_request.title }}"
+          echo "PR title: $TITLE"
+          echo "$TITLE" | npx commitlint --verbose --extends @commitlint/config-conventional
 
       - name: Validate PR commits
-        run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+        run: |
+          npx commitlint \
+            --from ${{ github.event.pull_request.base.sha }} \
+            --to   ${{ github.event.pull_request.head.sha }} \
+            --verbose
