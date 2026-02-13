@@ -105,6 +105,7 @@ jobs:
           unzip -q flutter.zip
 
           echo "${RUNNER_TEMP}/flutter/bin" >> "${GITHUB_PATH}"
+          export PATH="${RUNNER_TEMP}/flutter/bin:${PATH}"
           flutter --version
 
       - name: Setup Flutter (Windows)
