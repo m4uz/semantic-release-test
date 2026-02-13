@@ -11,6 +11,11 @@ concurrency:
   group: release-main
   cancel-in-progress: false
 
+env:
+  # Single pinned Flutter version reused across all platforms.
+  # Manual install docs: https://docs.flutter.dev/install/manual
+  FLUTTER_VERSION: "3.35.4"
+
 jobs:
   plan:
     runs-on: ubuntu-latest
@@ -63,10 +68,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            platform: android
           - os: macos-latest
             platform: macos
+          - os: windows-latest
+            platform: windows
+          - os: ubuntu-latest
+            platform: linux
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -76,47 +83,92 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: "3.x"
-          channel: stable
-          cache: true
+      - name: Setup Flutter (macOS)
+        if: matrix.platform == 'macos'
+        run: |
+          set -euo pipefail
+
+          echo "Installing Flutter ${FLUTTER_VERSION} (stable) manually for macOS."
+          echo "Info: This workflow intentionally avoids setup-flutter GitHub Actions."
+
+          cd "${RUNNER_TEMP}"
+
+          ARCH="$(uname -m)"
+          case "${ARCH}" in
+            arm64) FLUTTER_ARCH="arm64" ;;
+            x86_64) FLUTTER_ARCH="x64" ;;
+            *)
+              echo "Unsupported macOS runner architecture: ${ARCH}"
+              exit 1
+              ;;
+          esac
+
+          # Persist arch for later steps (e.g., artifact naming).
+          echo "FLUTTER_ARCH=${FLUTTER_ARCH}" >> "${GITHUB_ENV}"
+
+          FLUTTER_ZIP="flutter_macos_${FLUTTER_ARCH}_${FLUTTER_VERSION}-stable.zip"
+          FLUTTER_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable/${FLUTTER_VERSION}/${FLUTTER_ZIP}"
+
+          echo "Downloading ${FLUTTER_URL}"
+          curl -fL "${FLUTTER_URL}" -o flutter.zip
+
+          rm -rf flutter 2>/dev/null
+          unzip -q flutter.zip
+
+          echo "${RUNNER_TEMP}/flutter/bin" >> "${GITHUB_PATH}"
+          flutter --version
+
+      - name: Setup Flutter (Windows)
+        if: matrix.platform == 'windows'
+        run: |
+          Write-Host "Flutter setup placeholder for Windows (pinned version: ${{ env.FLUTTER_VERSION }})."
+          Write-Host "Info: This workflow intentionally avoids setup-flutter GitHub Actions."
+
+      - name: Setup Flutter (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          echo "Flutter setup placeholder for Linux (pinned version: ${FLUTTER_VERSION})."
+          echo "Info: This workflow intentionally avoids setup-flutter GitHub Actions."
 
       - name: Install dependencies
+        if: matrix.platform == 'macos'
         run: flutter pub get
 
-      - name: Build Android APK
-        if: matrix.platform == 'android'
+      - name: Build Windows
+        if: matrix.platform == 'windows'
         run: |
-          # flutter build apk --release \
-          #   --build-name="${{ needs.plan.outputs.version }}" \
-          #   --build-number="${{ needs.plan.outputs.build_number }}"
-
-          mkdir -p dist
-          echo "androd apk test" > "dist/app-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.apk"
-          # cp build/app/outputs/flutter-apk/app-release.apk \
-          #   "dist/app-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.apk"
+          Write-Host "Windows build placeholder (no real build yet)."
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Set-Content -Path "dist/windows-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip" -Value "windows build placeholder"
 
       - name: Build macOS (zip .app)
         if: matrix.platform == 'macos'
         run: |
-          # flutter build macos --release \
-          #   --build-name="${{ needs.plan.outputs.version }}" \
-          #   --build-number="${{ needs.plan.outputs.build_number }}"
+          set -euo pipefail
+
+          flutter build macos --release \
+            --build-name="${{ needs.plan.outputs.version }}" \
+            --build-number="${{ needs.plan.outputs.build_number }}"
 
           mkdir -p dist
-          echo "macos zip test" > "dist/macos-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
-          # APP_PATH="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)"
-          # ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" \
-          #   "dist/macos-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
+          APP_PATH="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)"
+          ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" \
+            "dist/macos-${FLUTTER_ARCH}-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
+
+      - name: Build Linux
+        if: matrix.platform == 'linux'
+        run: |
+          echo "Linux build placeholder (no real build yet)."
+          mkdir -p dist
+          echo "linux build placeholder" > "dist/linux-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.tar.gz"
 
       - name: Upload build artifacts
         # https://github.com/actions/upload-artifact/releases/tag/v6.0.0
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: dist-${{ matrix.platform }}
-          path: dist/*
+          path: dist/**
+          if-no-files-found: warn
 
   release:
     needs: [plan, build]
