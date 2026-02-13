@@ -45,7 +45,7 @@ jobs:
           set -euo pipefail
           OUTPUT="$(npx semantic-release --dry-run)"
           echo "${OUTPUT}"
-          VERSION="$(echo "$OUTPUT" | grep -m1 "The next release version is" | awk '{print $NF}' || true)"
+          VERSION="$(echo "$OUTPUT" | grep -im1 "The next release version is" | awk '{print $NF}' || true)"
           if [ -n "${VERSION}" ]; then
             echo "Next release: true"
             echo "Next version: ${VERSION}"
