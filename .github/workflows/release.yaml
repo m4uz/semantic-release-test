@@ -16,7 +16,6 @@ concurrency:
 jobs:
   plan:
     if: >
-      github.event.workflow_run.head_branch == 'main' &&
       github.event.workflow_run.conclusion == 'success' &&
       !contains(github.event.workflow_run.head_commit.message, '[skip ci]')
     runs-on: ubuntu-latest
@@ -26,23 +25,25 @@ jobs:
       build_number: ${{ github.run_number }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        # https://github.com/actions/checkout/releases/tag/v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        # https://github.com/actions/setup-node/releases/tag/v6.2.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version: "lts/*"
 
-      - name: Install semantic-release (for dry-run only)
+      - name: Install semantic-release
         run: |
-          npm install -D \
+          npm install --no-save \
             semantic-release \
             conventional-changelog-conventionalcommits
             
-      - name: Check for release (dry-run)
+      - name: Run semantic-release (dry-run)
         id: check
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -73,7 +74,8 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        # https://github.com/actions/checkout/releases/tag/v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
@@ -114,7 +116,8 @@ jobs:
           #   "dist/macos-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v4
+        # https://github.com/actions/upload-artifact/releases/tag/v6.0.0
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
         with:
           name: dist-${{ matrix.platform }}
           path: dist/*
@@ -126,14 +129,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        # https://github.com/actions/checkout/releases/tag/v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
           persist-credentials: false
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4
+        # https://github.com/actions/download-artifact/releases/tag/v7.0.0
+        uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131
         with:
           path: dist
 
@@ -144,17 +149,18 @@ jobs:
           find dist -type f -maxdepth 2 -print -exec cp -v {} release_assets/ \;
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        # https://github.com/actions/setup-node/releases/tag/v6.2.0
+        uses: actions/setup-node@6044e13b5dc448c55e2357c09f80417699197238
         with:
           node-version: "lts/*"
 
-      - name: Install release tooling
+      - name: Install semantic-release
         run: |
-          npm install -D \
+          npm install --no-save \
             semantic-release \
             conventional-changelog-conventionalcommits
 
-      - name: Run semantic-release (publish)
+      - name: Run semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BUILD_NUMBER: ${{ needs.plan.outputs.build_number }}
