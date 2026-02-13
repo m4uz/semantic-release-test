@@ -3,8 +3,6 @@ name: commitlint
 on:
   pull_request:
     branches: [ develop, main ]
-  push:
-    branches: [ develop, main ]
 
 permissions:
   contents: read
@@ -31,9 +29,4 @@ jobs:
             @commitlint/config-conventional
 
       - name: Validate PR commits
-        if: github.event_name == 'pull_request'
         run: npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
-
-      - name: Validate commints since the most recent commit before the push
-        if: github.event_name == 'push'
-        run: npx commitlint --from ${{ github.event.before }} --to ${{ github.sha }} --verbose
