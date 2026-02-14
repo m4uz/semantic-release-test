@@ -3,6 +3,7 @@ name: Release
 on:
   push:
     branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -10,11 +11,6 @@ permissions:
 concurrency:
   group: release-main
   cancel-in-progress: false
-
-env:
-  # Single pinned Flutter version reused across all platforms.
-  # Manual install docs: https://docs.flutter.dev/install/manual
-  FLUTTER_VERSION: "3.41.1"
 
 jobs:
   plan:
@@ -83,42 +79,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Flutter (macOS)
-        if: matrix.platform == 'macos'
-        run: |
-          set -euo pipefail
-
-          echo "Installing Flutter ${FLUTTER_VERSION} (stable) manually for macOS."
-
-          cd "${RUNNER_TEMP}"
-
-          FLUTTER_ARCH="arm64"
-          echo "FLUTTER_ARCH=${FLUTTER_ARCH}" >> "${GITHUB_ENV}"
-
-          FLUTTER_ZIP="flutter_macos_${FLUTTER_ARCH}_${FLUTTER_VERSION}-stable.zip"
-          FLUTTER_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable/macos/${FLUTTER_ZIP}"
-
-          echo "Downloading ${FLUTTER_URL}"
-          curl -fL "${FLUTTER_URL}" -o flutter.zip
-
-          rm -rf flutter 2>/dev/null
-          unzip -q flutter.zip
-
-          echo "${RUNNER_TEMP}/flutter/bin" >> "${GITHUB_PATH}"
-          export PATH="${RUNNER_TEMP}/flutter/bin:${PATH}"
-          flutter --version
-
-      - name: Setup Flutter (Windows)
-        if: matrix.platform == 'windows'
-        run: |
-          Write-Host "Flutter setup placeholder for Windows (pinned version: ${{ env.FLUTTER_VERSION }})."
-          Write-Host "Info: This workflow intentionally avoids setup-flutter GitHub Actions."
-
-      - name: Setup Flutter (Linux)
-        if: matrix.platform == 'linux'
-        run: |
-          echo "Flutter setup placeholder for Linux (pinned version: ${FLUTTER_VERSION})."
-          echo "Info: This workflow intentionally avoids setup-flutter GitHub Actions."
+      - name: Install Flutter
+        uses: ./.github/actions/install-flutter
+        with:
+          flutter-version: "3.41.1"
 
       - name: Install dependencies
         if: matrix.platform == 'macos'
