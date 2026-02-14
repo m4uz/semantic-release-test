@@ -127,10 +127,10 @@
       {
         "assets": [
           {
-            "path": "release_assets/windows-*.zip"
+            "path": "dist/windows-*.zip"
           },
           {
-            "path": "release_assets/macos-*.zip"
+            "path": "dist/macos-*.zip"
           }
         ]
       }
