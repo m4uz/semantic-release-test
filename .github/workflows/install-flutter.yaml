@@ -16,12 +16,10 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Checkout
-        # https://github.com/actions/checkout/releases/tag/v6.0.2
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
-
       - name: Install Flutter
         uses: ./.github/actions/install-flutter
+        with:
+          flutter-version: "3.41.1"
 
       - name: flutter --version
         shell: bash
