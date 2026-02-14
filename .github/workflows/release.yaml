@@ -85,15 +85,31 @@ jobs:
           flutter-version: "3.41.1"
 
       - name: Install dependencies
-        if: matrix.platform == 'macos' # Temporary guard.
+        if: matrix.platform != 'linux' # Temporary guard.
         run: flutter pub get
 
       - name: Build Windows
         if: matrix.platform == 'windows'
+        shell: bash
         run: |
-          Write-Host "Windows build placeholder (no real build yet)."
-          New-Item -ItemType Directory -Force -Path dist | Out-Null
-          Set-Content -Path "dist/windows-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip" -Value "windows build placeholder"
+          set -euo pipefail
+
+          version="${{ needs.plan.outputs.version }}"
+          build_number="${{ needs.plan.outputs.build_number }}"
+          bundle_name="windows-x64-${version}+${build_number}"
+
+          flutter build windows --release \
+            --build-name="${version}" \
+            --build-number="${build_number}"
+
+          bundle_dir="dist/${bundle_name}"
+          mkdir -p "${bundle_dir}"
+
+          cp -R "build/windows/x64/runner/Release/." "${bundle_dir}/"
+          cd dist
+          zip -qr "${bundle_name}.zip" "${bundle_name}"
+          rm -rf "${bundle_name}"
+          cd ..
 
       - name: Build macOS (zip .app)
         if: matrix.platform == 'macos'
@@ -113,8 +129,6 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           echo "Linux build placeholder (no real build yet)."
-          mkdir -p dist
-          echo "linux build placeholder" > "dist/linux-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.tar.gz"
 
       - name: Upload build artifacts
         # https://github.com/actions/upload-artifact/releases/tag/v6.0.0
@@ -147,7 +161,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p release_assets
-          find dist -type f -maxdepth 2 -print -exec cp -v {} release_assets/ \;
+          find dist -type f -maxdepth 4 -print
+          find dist -type f -maxdepth 4 -print -exec cp -v {} release_assets/ \;
 
       - name: Setup Node.js
         # https://github.com/actions/setup-node/releases/tag/v6.2.0
