@@ -107,7 +107,7 @@ jobs:
           mkdir -p dist
           APP_PATH="$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' -print -quit)"
           ditto -c -k --sequesterRsrc --keepParent "$APP_PATH" \
-            "dist/macos-${FLUTTER_ARCH}-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
+            "dist/macos-arm64-${{ needs.plan.outputs.version }}+${{ needs.plan.outputs.build_number }}.zip"
 
       - name: Build Linux
         if: matrix.platform == 'linux'
