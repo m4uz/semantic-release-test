@@ -107,7 +107,7 @@ jobs:
 
           cp -R "build/windows/x64/runner/Release/." "${bundle_dir}/"
           cd dist
-          zip -qr "${bundle_name}.zip" "${bundle_name}"
+          7z a -tzip "${bundle_name}.zip" "${bundle_name}" >/dev/null
           rm -rf "${bundle_name}"
           cd ..
 
