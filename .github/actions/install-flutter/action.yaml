@@ -1,13 +1,7 @@
 name: Install Flutter
-description: Detect platform/arch and construct Flutter download URL
+description: Install pinned Flutter SDK on runner
 
 outputs:
-  platform:
-    description: Normalized platform name (windows/macos/linux)
-    value: ${{ steps.meta.outputs.platform }}
-  architecture:
-    description: Normalized CPU architecture (x64/arm64)
-    value: ${{ steps.meta.outputs.architecture }}
   download-url:
     description: Flutter SDK archive download URL
     value: ${{ steps.meta.outputs.download-url }}
@@ -18,7 +12,7 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Detect platform/arch and build URL
+    - name: Compute download URL
       id: meta
       shell: bash
       run: |
@@ -27,11 +21,11 @@ runs:
         FLUTTER_VERSION="3.41.1"
         BASE_URL="https://storage.googleapis.com/flutter_infra_release/releases/stable"
 
-        # RUNNER_OS: Windows|macOS|Linux
+        # Support: Windows/Linux x64, macOS arm64
         case "${RUNNER_OS}" in
           Windows) platform="windows"; arch="x64" ;;
-          macOS)   platform="macos";   arch="arm64" ;;
           Linux)   platform="linux";   arch="x64" ;;
+          macOS)   platform="macos";   arch="arm64" ;;
           *)
             echo "Unsupported RUNNER_OS: ${RUNNER_OS}" >&2
             exit 1
@@ -39,32 +33,22 @@ runs:
         esac
 
         case "${platform}" in
-          windows)
-            file="flutter_windows_${FLUTTER_VERSION}-stable.zip"
-            ;;
-          macos)
-            file="flutter_macos_${arch}_${FLUTTER_VERSION}-stable.zip"
-            ;;
-          linux)
-            file="flutter_linux_${FLUTTER_VERSION}-stable.tar.xz"
-            ;;
+          windows) file="flutter_windows_${FLUTTER_VERSION}-stable.zip" ;;
+          macos)   file="flutter_macos_${arch}_${FLUTTER_VERSION}-stable.zip" ;;
+          linux)   file="flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" ;;
         esac
 
         url="${BASE_URL}/${platform}/${file}"
 
-        # Normalize output path for the runner (Windows prefers Windows paths).
+        # For env/path files, Windows prefers Windows-style paths.
         if [[ "${platform}" == "windows" ]] && command -v cygpath >/dev/null 2>&1; then
           flutter_root_out="$(cygpath -w "${RUNNER_TEMP}")\\flutter"
         else
           flutter_root_out="${RUNNER_TEMP}/flutter"
         fi
 
-        echo "platform=${platform}" >> "${GITHUB_OUTPUT}"
-        echo "architecture=${arch}" >> "${GITHUB_OUTPUT}"
         echo "download-url=${url}" >> "${GITHUB_OUTPUT}"
         echo "flutter-root=${flutter_root_out}" >> "${GITHUB_OUTPUT}"
-
-        echo "Computed Flutter download URL: ${url}"
 
     - name: Download and extract Flutter
       shell: bash
@@ -72,46 +56,44 @@ runs:
         set -euo pipefail
 
         url='${{ steps.meta.outputs.download-url }}'
-        platform='${{ steps.meta.outputs.platform }}'
 
-        # On Windows, RUNNER_TEMP is a Windows path. Convert it so bash tooling works.
+        # In bash on Windows, convert RUNNER_TEMP to a unix path for tools like unzip/rm/mv.
         runner_temp="${RUNNER_TEMP}"
-        if [[ "${platform}" == "windows" ]] && command -v cygpath >/dev/null 2>&1; then
+        if [[ "${RUNNER_OS}" == "Windows" ]] && command -v cygpath >/dev/null 2>&1; then
           runner_temp="$(cygpath -u "${RUNNER_TEMP}")"
         fi
 
         archive_name="${url##*/}"
-        archive_path="${runner_temp}/${archive_name}"
+        archive_local="${runner_temp}/${archive_name}"
         flutter_root="${runner_temp}/flutter"
 
-        echo "Downloading ${url}"
-        curl -fL --retry 5 --connect-timeout 15 "${url}" -o "${archive_path}"
+        curl -fL --connect-timeout 15 --retry 5 "${url}" > "${archive_local}"
 
-        rm -rf "${flutter_root}"
-
-        echo "Extracting ${archive_name}"
         if [[ "${archive_name}" == *.zip ]]; then
-          if [[ "${platform}" == "windows" ]]; then
-            # Windows runners reliably have bsdtar tar which can extract zip.
-            tar -xf "${archive_path}" -C "${runner_temp}"
-          else
-            unzip -q "${archive_path}" -d "${runner_temp}"
+          EXTRACT_PATH="${runner_temp}/_unzip_temp"
+          rm -rf "${EXTRACT_PATH}"
+          mkdir -p "${EXTRACT_PATH}"
+
+          if ! command -v unzip >/dev/null 2>&1; then
+            echo "unzip not found (required to extract ${archive_name})." >&2
+            exit 1
           fi
-        elif [[ "${archive_name}" == *.tar.xz ]]; then
-          tar -xJf "${archive_path}" -C "${runner_temp}"
+
+          unzip -q -o "${archive_local}" -d "${EXTRACT_PATH}"
+
+          rm -rf "${flutter_root}"
+          mv "${EXTRACT_PATH}/flutter" "${flutter_root}"
+          rm -rf "${EXTRACT_PATH}"
         else
-          echo "Unsupported archive type for platform=${platform}: ${archive_name}" >&2
-          exit 1
+          rm -rf "${flutter_root}"
+          mkdir -p "${flutter_root}"
+          tar xf "${archive_local}" -C "${flutter_root}" --strip-components=1
         fi
 
-        if [[ ! -d "${flutter_root}" ]]; then
-          echo "Expected Flutter root not found at: ${flutter_root}" >&2
-          ls -la "${runner_temp}" >&2 || true
-          exit 1
-        fi
+        rm -f "${archive_local}"
 
-        # Export env vars and PATH for subsequent steps.
-        if [[ "${platform}" == "windows" ]] && command -v cygpath >/dev/null 2>&1; then
+        # Export env vars + PATH for subsequent workflow steps.
+        if [[ "${RUNNER_OS}" == "Windows" ]] && command -v cygpath >/dev/null 2>&1; then
           flutter_root_env="$(cygpath -w "${flutter_root}")"
           echo "FLUTTER_ROOT=${flutter_root_env}" >> "${GITHUB_ENV}"
           printf '%s\n' "${flutter_root_env}\\bin" >> "${GITHUB_PATH}"
@@ -122,8 +104,8 @@ runs:
           echo "${flutter_root}/bin/cache/dart-sdk/bin" >> "${GITHUB_PATH}"
         fi
 
-        # Smoke test in this step.
-        if [[ "${platform}" == "windows" ]]; then
+        # Smoke test inside this step.
+        if [[ "${RUNNER_OS}" == "Windows" ]]; then
           "${flutter_root}/bin/flutter.bat" --version
         else
           export PATH="${flutter_root}/bin:${flutter_root}/bin/cache/dart-sdk/bin:${PATH}"

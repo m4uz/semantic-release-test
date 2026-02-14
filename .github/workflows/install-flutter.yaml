@@ -26,9 +26,4 @@ jobs:
       - name: flutter --version
         shell: bash
         run: |
-          set -euo pipefail
-          if command -v flutter >/dev/null 2>&1; then
-            flutter --version
-          else
-            flutter.bat --version
-          fi
+          flutter --version
