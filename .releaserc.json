@@ -127,7 +127,7 @@
       {
         "assets": [
           {
-            "path": "release_assets/*.apk"
+            "path": "release_assets/windows-*.zip"
           },
           {
             "path": "release_assets/macos-*.zip"
