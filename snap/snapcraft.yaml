@@ -1,5 +1,5 @@
 name: semantic-release-test
-version: ${SNAPCRAFT_PROJECT_VERSION}
+version: 0.0.0-semantically-released
 summary: Test
 description: Test
 

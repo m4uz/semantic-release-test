@@ -172,9 +172,9 @@ jobs:
           build_number="${{ needs.plan.outputs.build_number }}"
           bundle_name="linux-x64-${version}+${build_number}"
 
-          export SNAPCRAFT_PROJECT_VERSION="${version}+${build_number}"
+          SNAPCRAFT_PROJECT_VERSION="${version}+${build_number}" snapcraft pack --destructive-mode
           #sg lxd -c 'snapcraft pack --destructive-mode'
-          snapcraft pack --destructive-mode
+          
 
           mkdir -p dist
           tar -czf dist/${bundle_name}.tar.gz *.snap
