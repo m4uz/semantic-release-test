@@ -79,13 +79,24 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Install Linux build tools
+        if: matrix.platform == 'linux'
+        run: |
+          apt update && \
+          apt install -y \
+          clang cmake ninja-build pkg-config \
+          libgtk-3-dev libgtk-3-0 \
+          libgl1-mesa-dev libglu1-mesa-dev \
+          libblkid-dev liblzma-dev libgcrypt20-dev \
+          libx11-dev libxrandr-dev libxi-dev libxinerama-dev libxcursor-dev \
+          libpulse-dev libssl-dev
+
       - name: Install Flutter
         uses: ./.github/actions/install-flutter
         with:
           flutter-version: "3.41.1"
 
       - name: Install dependencies
-        if: matrix.platform != 'linux' # Temporary guard.
         run: flutter pub get
 
       - name: Build Windows
@@ -139,6 +150,9 @@ jobs:
             --build-name="${version}" \
             --build-number="${build_number}"
 
+          echo '[DEBUG] Is that built???'
+          ls ./build/linux/x64/release/bundle/
+        
       - name: Upload build artifacts
         # https://github.com/actions/upload-artifact/releases/tag/v6.0.0
         uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f
