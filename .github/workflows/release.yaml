@@ -91,8 +91,6 @@ jobs:
 
           sudo usermod -aG lxd "$USER"
 
-          # sudo iptables -P FORWARD ACCEPT
-
           # https://documentation.ubuntu.com/lxd/latest/howto/network_bridge_firewalld/#prevent-connectivity-issues-with-lxd-and-docker
           sudo iptables -I DOCKER-USER -i lxdbr0 -j ACCEPT
           sudo ip6tables -I DOCKER-USER -i lxdbr0 -j ACCEPT
@@ -162,7 +160,8 @@ jobs:
           build_number="${{ needs.plan.outputs.build_number }}"
           bundle_name="linux-x64-${version}+${build_number}"
 
-          sg lxd -c "SNAPCRAFT_PROJECT_VERSION='${version}+${build_number}' snapcraft pack"
+          sed -i "s/^version:.*/version: ${full_version}/" snap/snapcraft.yaml
+          sg lxd -c "snapcraft pack"
 
           mkdir -p dist
           tar -czf dist/${bundle_name}.tar.gz *.snap

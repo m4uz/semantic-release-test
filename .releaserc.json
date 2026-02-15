@@ -131,6 +131,9 @@
           },
           {
             "path": "dist/macos-*.zip"
+          },
+          {
+            "path": "dist/linux-*.zip"
           }
         ]
       }
