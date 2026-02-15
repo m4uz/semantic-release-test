@@ -1,0 +1,28 @@
+name: semantic-release-test
+version: 0.1.0
+summary: Test
+description: Test
+
+confinement: strict
+base: core22
+grade: stable
+
+slots:
+  dbus-semantic-release-test:
+    interface: dbus
+    bus: session
+    name: org.bar.semantic_release_test
+
+apps:
+  semantic-release-test:
+    command: semantic_release_test
+    extensions: [gnome]
+    plugs:
+    - network
+    slots:
+      - dbus-semantic-release-test
+parts:
+  semantic-release-test:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart
