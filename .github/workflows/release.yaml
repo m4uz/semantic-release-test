@@ -85,7 +85,6 @@ jobs:
           flutter-version: "3.41.1"
 
       - name: Install dependencies
-        if: matrix.platform != 'linux' # Temporary guard.
         run: flutter pub get
 
       - name: Build Windows
@@ -110,7 +109,7 @@ jobs:
           7z a -tzip "${bundle_name}.zip" "${bundle_name}" >/dev/null
           rm -rf "${bundle_name}"
 
-      - name: Build macOS (zip .app)
+      - name: Build macOS
         if: matrix.platform == 'macos'
         run: |
           set -euo pipefail
@@ -131,7 +130,16 @@ jobs:
       - name: Build Linux
         if: matrix.platform == 'linux'
         run: |
-          echo "Linux build placeholder (no real build yet)."
+          set -euo pipefail
+
+          version="${{ needs.plan.outputs.version }}"
+          build_number="${{ needs.plan.outputs.build_number }}"
+          bundle_name="macos-arm64-${version}+${build_number}"
+
+          flutter build macos --release \
+            --build-name="${version}" \
+            --build-number="${build_number}"
+
 
       - name: Upload build artifacts
         # https://github.com/actions/upload-artifact/releases/tag/v6.0.0
