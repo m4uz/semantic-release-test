@@ -79,15 +79,21 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Install snapcraft
+      - name: Install snapcraft and lxd
         if: matrix.platform == 'linux'
         run: |
+          set -euo pipefail
+          
           sudo snap install snapcraft --classic
           sudo snap install lxd
           lxd init --auto
-          sudo usermod -a -G lxd $USER
-          exec su - "$USER"
+          sudo usermod -a -G lxd "$USER"
 
+      - name: Verify snapcraft and lxd commands
+        if: matrix.platform == 'linux'
+        run: |
+          set -euo pipefail
+          
           snapcraft --version
           lxd --version
 
