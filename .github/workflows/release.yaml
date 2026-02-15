@@ -131,7 +131,13 @@ jobs:
       - name: Build Linux
         if: matrix.platform == 'linux'
         run: |
-          echo "Linux build placeholder (no real build yet)."
+          version="${{ needs.plan.outputs.version }}"
+          build_number="${{ needs.plan.outputs.build_number }}"
+          bundle_name="linux-x64-${version}+${build_number}"
+
+          flutter build linux --release \
+            --build-name="${version}" \
+            --build-number="${build_number}"
 
       - name: Upload build artifacts
         # https://github.com/actions/upload-artifact/releases/tag/v6.0.0
