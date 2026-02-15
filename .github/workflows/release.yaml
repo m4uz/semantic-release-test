@@ -85,16 +85,20 @@ jobs:
           set -euo pipefail
 
           sudo snap install snapcraft --classic
+          sudo snap install lxd
+          sudo snap restart lxd
+          sudo lxd init --auto
 
-          sudo apt install -y clang cmake curl gcc git make ninja-build unzip
+          sudo usermod -aG lxd "$USER"
 
-          # sudo snap install lxd
+          # sudo iptables -P FORWARD ACCEPT
 
-          # sudo snap restart lxd
+          # https://documentation.ubuntu.com/lxd/latest/howto/network_bridge_firewalld/#prevent-connectivity-issues-with-lxd-and-docker
+          sudo iptables -I DOCKER-USER -i "${BRIDGE}" -j ACCEPT
+          sudo ip6tables -I DOCKER-USER -i "${BRIDGE}" -j ACCEPT
+          sudo iptables -I DOCKER-USER -o "${BRIDGE}" -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+          sudo ip6tables -I DOCKER-USER -o "${BRIDGE}" -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 
-          # sudo lxd init --auto
-
-          # sudo usermod -aG lxd "$USER"
 
       - name: Verify snapcraft and lxd commands
         if: matrix.platform == 'linux'
@@ -102,23 +106,7 @@ jobs:
           set -euo pipefail
           
           snapcraft --version
-          # lxd --version
-
-      # - name: Fix LXD networking
-      #   if: matrix.platform == 'linux'
-      #   shell: bash
-      #   run: |
-      #     set -euo pipefail
-
-      #     BRIDGE="lxdbr0"
-
-      #     # sudo iptables -P FORWARD ACCEPT
-
-      #     # https://documentation.ubuntu.com/lxd/latest/howto/network_bridge_firewalld/#prevent-connectivity-issues-with-lxd-and-docker
-      #     # sudo iptables -I DOCKER-USER -i "${BRIDGE}" -j ACCEPT
-      #     # sudo ip6tables -I DOCKER-USER -i "${BRIDGE}" -j ACCEPT
-      #     # sudo iptables -I DOCKER-USER -o "${BRIDGE}" -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-      #     # sudo ip6tables -I DOCKER-USER -o "${BRIDGE}" -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+          lxd --version
 
       - name: Install Flutter
         uses: ./.github/actions/install-flutter
@@ -175,9 +163,7 @@ jobs:
           build_number="${{ needs.plan.outputs.build_number }}"
           bundle_name="linux-x64-${version}+${build_number}"
 
-          SNAPCRAFT_PROJECT_VERSION="${version}+${build_number}" snapcraft pack --destructive-mode
-          #sg lxd -c 'snapcraft pack --destructive-mode'
-          
+          sg lxd -c "SNAPCRAFT_PROJECT_VERSION='${version}+${build_number}' snapcraft pack"
 
           mkdir -p dist
           tar -czf dist/${bundle_name}.tar.gz *.snap
