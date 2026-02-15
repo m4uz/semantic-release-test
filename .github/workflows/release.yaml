@@ -160,7 +160,7 @@ jobs:
           build_number="${{ needs.plan.outputs.build_number }}"
           bundle_name="linux-x64-${version}+${build_number}"
 
-          sed -i "s/^version:.*/version: ${full_version}/" snap/snapcraft.yaml
+          sed -i "s/^version:.*/version: ${version}+${build_number}/" snap/snapcraft.yaml
           sg lxd -c "snapcraft pack"
 
           mkdir -p dist
