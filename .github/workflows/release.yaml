@@ -85,6 +85,9 @@ jobs:
           set -euo pipefail
 
           sudo snap install snapcraft --classic
+
+          sudo apt install -y clang cmake curl gcc git make ninja-build unzip
+
           # sudo snap install lxd
 
           # sudo snap restart lxd
