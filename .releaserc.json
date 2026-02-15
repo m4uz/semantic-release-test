@@ -133,7 +133,7 @@
             "path": "dist/macos-*.zip"
           },
           {
-            "path": "dist/linux-*.zip"
+            "path": "dist/linux-*.tar.gz"
           }
         ]
       }
