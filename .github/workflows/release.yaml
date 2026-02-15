@@ -156,7 +156,7 @@ jobs:
           build_number="${{ needs.plan.outputs.build_number }}"
           bundle_name="linux-x64-${version}+${build_number}"
 
-          sg lxd -c 'snapcraft pack'
+          sg lxd -c 'snapcraft pack --use-lxd'
 
           ls -la
 
