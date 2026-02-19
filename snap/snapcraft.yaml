@@ -24,10 +24,5 @@ apps:
 
 parts:
   semantic-release-test:
-    source: .
-    plugin: nil
-    override-build: |
-      set -eux
-      flutter pub get
-      flutter build linux --release
-      cp -a build/linux/*/release/bundle/* "$SNAPCRAFT_PART_INSTALL/"
+    plugin: dump
+    source: build/linux/x64/release/bundle

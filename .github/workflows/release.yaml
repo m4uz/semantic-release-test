@@ -156,12 +156,13 @@ jobs:
       - name: Build Linux
         if: matrix.platform == 'linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libunistring5
-
           version="${{ needs.plan.outputs.version }}"
           build_number="${{ needs.plan.outputs.build_number }}"
           bundle_name="linux-x64-${version}+${build_number}"
+
+          flutter build linux --release \
+            --build-name="${version}" \
+            --build-number="${build_number}"
 
           sed -i "s/^version:.*/version: ${version}+${build_number}/" snap/snapcraft.yaml
           sg lxd -c "snapcraft pack"
