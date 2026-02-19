@@ -161,7 +161,8 @@ jobs:
           bundle_name="linux-x64-${version}+${build_number}"
 
           sed -i "s/^version:.*/version: ${version}+${build_number}/" snap/snapcraft.yaml
-          sg lxd -c "snapcraft pack"
+          #sg lxd -c "snapcraft pack"
+          snapcraft pack --destructive-mode
 
           mkdir -p dist
           tar -czf dist/${bundle_name}.tar.gz *.snap
