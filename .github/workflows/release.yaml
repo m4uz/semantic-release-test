@@ -157,8 +157,8 @@ jobs:
         if: matrix.platform == 'linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libunistring2
-          
+          sudo apt-get install -y libunistring5
+
           version="${{ needs.plan.outputs.version }}"
           build_number="${{ needs.plan.outputs.build_number }}"
           bundle_name="linux-x64-${version}+${build_number}"
