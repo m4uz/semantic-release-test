@@ -18,11 +18,16 @@ apps:
     command: semantic_release_test
     extensions: [gnome]
     plugs:
-    - network
+      - network
     slots:
       - dbus-semantic-release-test
+
 parts:
   semantic-release-test:
     source: .
-    plugin: flutter
-    flutter-target: lib/main.dart
+    plugin: nil
+    override-build: |
+      set -eux
+      flutter pub get
+      flutter build linux --release
+      cp -a build/linux/*/release/bundle/* "$SNAPCRAFT_PART_INSTALL/"
